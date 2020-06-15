@@ -4,11 +4,12 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+Graduated from CU Boulder in December of 2018 with a B.S. in Computer Science and a minor in Applied Math.
+Since then I've been working as a Full Stack Software Engineer at [Carimus](https://carimus.com/).
+Passionate about working on new & creative projects to help make life easier for those in my community.
 
-### More Information
-
-A place to include any other types of information that you'd like to include about yourself.
+## Latest Side Project
+Collaborating with the one and only Nicholas Clement on finding you guys local happy hours @ [Hottest Happy Hours](https://hottesthappyhours.com/). Highly recommend taking a peek at [his](https://nicholasclement.com/about/) site if you're interested in increasing your knowledge on AWS.
 
 ### Contact me
 
