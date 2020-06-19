@@ -12,7 +12,7 @@ This post is to help beginners on AWS get some hands on experience with building
 
 ## Launch An EC2 Instance
 In order to create our web server, we need to launch an EC2 instance. So from the AWS Management Console, navigate to the EC2 Dashboard found here under services:
-![_config.yml]({{ site.baseurl }}/images/2020-06-12-mang-con.png)
+![_config.yml]({{ site.baseurl }}/images/2020-06-12/mang-con.png)
 
 This will take you to the EC2 Dashboard where you can see a breakdown of all running EC2 resources in your account. Assuming you have no instances running already, lets go ahead and click "Launch instance".
 
@@ -20,13 +20,13 @@ Next, you'll be taken through 6 steps to configure your instance. We will be lea
 
 1. **Choose AMI**
   - We'll stick to a basic Free tier Linux AMI (Amazon Machine Image). So go ahead and select this one below.
-  ![_config.yml]({{ site.baseurl }}/images/2020-06-12-AMI_linux.png)
+  ![_config.yml]({{ site.baseurl }}/images/2020-06-12/AMI_linux.png)
 
 2. **Choose Instance Type**
   - Next you should see a massive table that shows the wide variety of instance types that AWS provides. This allows us to optimized our instance usage by selecting one geared towards our use case. (i.e. if you're doing research and need to run expensive calculations that require high performance processors, you would want to select an instance that is Compute Optimized). To find out more about the different instance types, checkout [this](https://aws.amazon.com/ec2/instance-types/) link.
 
     For this tutorial, let's stick to the Free tier general purpose t2.micro. Then click "Configure Instance Details"
-  ![_config.yml]({{ site.baseurl }}/images/2020-06-12-instance-type.png)
+  ![_config.yml]({{ site.baseurl }}/images/2020-06-12/instance-type.png)
 
 3. **Configure Instance**
   - We aren't going to change any of the defaults on this page but just take note of all the options you have like how many instances to launch or the different VPC / Subnet values.
@@ -43,7 +43,7 @@ Next, you'll be taken through 6 steps to configure your instance. We will be lea
   - Let's create a new security group and name it whatever you want. (i.e. something like "WebDMZ" so we know it's the security group for our web severs). Under the SSH rule, update "Source" to be anywhere so we will easily be able to SSH into our instance later (yes yes I know, bad practice). Normally this should be configured down to your specific IP address but this is just a basic tutorial to get your web server up.
   - Now let's add a new rule that allows people from the outside world to connect and view the content on our web server. Click "Add Rule", change the type to be "HTTP", and change the source to be anywhere so our instance will accept all web traffic coming in through port 80.
   - By the end, your setup should look like this:
-  ![_config.yml]({{ site.baseurl }}/images/2020-06-12-security-groups.png)
+  ![_config.yml]({{ site.baseurl }}/images/2020-06-12/security-groups.png)
 
 
 7. **Review**
@@ -59,11 +59,11 @@ First thing we need to do is update the permissions on our `pem` file. To do so,
 
 Now we can connect to our instance! From the EC2 dashboard, make sure the checkbox next to your running instance is selected and then hit Connect. You should see a modal like this:
 
-![_config.yml]({{ site.baseurl }}/images/2020-06-12-ssh.png)
+![_config.yml]({{ site.baseurl }}/images/2020-06-12/ssh.png)
 
 Go ahead and copy the example command (which should be customized based on your EC2 instance and keypair name). Paste that into the console and type 'yes' if prompted to continue connecting (this will add your computer to the list of known hosts). A successful connection will look like this:
 
-![_config.yml]({{ site.baseurl }}/images/2020-06-12-ssh-connect.png)
+![_config.yml]({{ site.baseurl }}/images/2020-06-12/ssh-connect.png)
 
 Now we will run a series of commands to get our web service installed. Let's run the following:
 1. `sudo su` this elevates our privileges to root so we can have full admin access to our instance.
@@ -89,11 +89,11 @@ Then save & close the file (for nano hit `ctrl + x`, then `y`, and then `enter` 
 
 ## Now for the moment of truth!
  Using the public IP address of your instance found here on the dashboard:
-![_config.yml]({{ site.baseurl }}/images/2020-06-12-public-ip.png)
+![_config.yml]({{ site.baseurl }}/images/2020-06-12/public-ip.png)
 
 Copy & paste that into a new tab of your browser. You should see your `index.html` page!
 
-![_config.yml]({{ site.baseurl }}/images/2020-06-12-html-page.png)
+![_config.yml]({{ site.baseurl }}/images/2020-06-12/html-page.png)
 
 ## Congratulations! 🎉
  You just configured your very own web server in the cloud that you can connect to using a public IP address.
