@@ -1,0 +1,13 @@
+I"�<p>This post is to help configure CORS (Cross Origin Resource Sharing) on AWS S3 for Static Sites.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Have an AWS account (we will only be using services under the free tier so don’t worry about this costing you any 💰).</li>
+  <li>You are logged into the AWS Console.</li>
+</ul>
+
+<h2 id="when-would-you-do-this">When would you do this?</h2>
+<p>[ ] TODO</p>
+
+<h2 id="lets-get-started">Let’s Get Started</h2>
+:ET

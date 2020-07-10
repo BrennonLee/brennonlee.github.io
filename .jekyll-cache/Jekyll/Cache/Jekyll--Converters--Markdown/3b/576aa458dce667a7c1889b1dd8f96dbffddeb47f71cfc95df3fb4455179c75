@@ -1,0 +1,72 @@
+I"�<p>This post is to help configure CORS (Cross Origin Resource Sharing) on AWS S3 for Static Sites.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Have an AWS account (we will only be using services under the free tier so don’t worry about this costing you any 💰).</li>
+  <li>You are logged into the AWS Console.</li>
+</ul>
+
+<h2 id="why-would-i-do-this">Why would I do this?</h2>
+<p>[ ] TODO</p>
+
+<h2 id="lets-get-started">Let’s Get Started</h2>
+<p>First, we need to create a bucket that will host our static site. Head over to the Amazon S3 and create a bucket like so:</p>
+
+<p><img src="/images/2020-07-10/create-bucket.png" alt="_config.yml" /></p>
+
+<p>For simplicity of this tutorial, go ahead and uncheck “Block all public access”. You should see a banner popup that makes you confirm this action. This is going to make this bucket publicly accessible (this is needed so we can make the files we’ll upload later on available).</p>
+
+<p><img src="/images/2020-07-10/ack-public-access.png" alt="_config.yml" /></p>
+
+<p>Once your bucket is created, we want our bucket to host our static website.
+To set that up, navigate over to “Properties” -&gt; “Static website hosting” -&gt; and check “Use this bucket to host a website”. A few fields will popup asking which HTML files to use and we’ll just stick with the defaults.</p>
+
+<p><img src="/images/2020-07-10/enable-static-hosting.png" alt="_config.yml" /></p>
+
+<p>Now we need to upload the actual <code class="language-plaintext highlighter-rouge">index.html</code> and <code class="language-plaintext highlighter-rouge">error.html</code> files. You can find those <a href="">here</a> or just copy/paste the contents down below:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- index.html --&gt;
+&lt;script src="https://code.jquery.com/jquery-1.11.0.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"&gt;&lt;/script&gt;
+
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;This is index.html&lt;/h1&gt;
+    &lt;br&gt;
+    &lt;h3&gt;This is the rest of the page&lt;/h3&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- error.html --&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;
+      Uh oh, looks like something went wrong :/
+    &lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre></div></div>
+
+<p>Go ahead and upload these files to the bucket we just created. Make sure when you do, to select “Grant public read access to this object(s)”.</p>
+
+<p>To test our static site is serving the correct files, you can find the endpoint under your bucket’s “Properties” settings.
+Find the URL located at “Properties” -&gt; “Static website hosting”.
+Test that out in the browser and you should see the following content:</p>
+
+<p><img src="/images/2020-07-10/part-1-content.png" alt="_config.yml" /></p>
+
+<p>Now that we got our static site up and running, let’s create another bucket where we will upload different files but load them in this site.</p>
+
+<p>Go ahead and create your second bucket (naming it whatever you want, but it must be globally unique). I named mine “bucket-for-brennons-other-files” and be sure to make this public publicly accessible as well.</p>
+
+<p>For this new bucket, upload the following html file (make sure it’s public!):</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;!-- restOfContent.html --&gt;
+  &lt;br&gt;
+  &lt;h2&gt;This content was loaded from another S3 bucket!&lt;/h2&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre></div></div>
+:ET

@@ -1,0 +1,18 @@
+I""<p>This post is to help configure CORS (Cross Origin Resource Sharing) on AWS S3 for Static Sites.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Have an AWS account (we will only be using services under the free tier so don’t worry about this costing you any 💰).</li>
+  <li>You are logged into the AWS Console.</li>
+</ul>
+
+<h2 id="why-would-i-do-this">Why would I do this?</h2>
+<p>[ ] TODO</p>
+
+<h2 id="lets-get-started">Let’s Get Started</h2>
+<p>First, we need to create a bucket that will host our static site. Head over to the Amazon S3 service and create a bucket like so:
+<img src="/images/2020-07-10/create-bucket.png" alt="_config.yml" /></p>
+
+<p>For simplicity of this tutorial, go ahead and click
+<img src="/images/2020-07-10/ack-public-policy.png" alt="_config.yml" /></p>
+:ET
