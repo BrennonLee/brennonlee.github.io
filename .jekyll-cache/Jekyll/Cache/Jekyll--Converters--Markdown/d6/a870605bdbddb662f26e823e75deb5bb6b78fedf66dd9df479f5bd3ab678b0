@@ -1,0 +1,11 @@
+I"�<p>This post goes over how to build a basic Alexa Skill.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Have an AWS account (we will only be using services under the free tier so don’t worry about this costing you any 💰).</li>
+  <li>You are logged into the AWS Console.</li>
+  <li>Not using windows (windows portion of the tutorial coming soon . . . maybe)</li>
+</ul>
+
+<h2 id="launch-an-ec2-instance">Launch An EC2 Instance</h2>
+:ET

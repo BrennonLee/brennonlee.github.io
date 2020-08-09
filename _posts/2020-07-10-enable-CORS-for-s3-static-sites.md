@@ -10,7 +10,7 @@ This post is to help configure CORS (Cross Origin Resource Sharing) on AWS S3 fo
 - You are logged into the AWS Console.
 
 ## Why would I do this?
-[ ] Configuring Cross Origin Resource Sharing is a great way to organize your website. This allows you to store all your JS files in one bucket, images in another, and then load the content that's needed into your html bucket.
+ Configuring Cross Origin Resource Sharing is a great way to organize your website. This allows you to store all your JS files in one bucket, images in another, and then load the content that's needed into your html bucket.
 
 ## Let's Get Started
 First, we need to create a bucket that will host our static site. Head over to the Amazon S3 and create a bucket like so:
