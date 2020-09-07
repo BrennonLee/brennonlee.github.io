@@ -1,0 +1,16 @@
+I"�<p>This post is for those who want to track their user’s UTM parameters on their web app and save them in local storage for later use.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Understand what UTM parameters are.</li>
+  <li>Knowledge of local storage (and why we will use this instead of session storage). Recommended article <a href="https://medium.com/better-programming/how-to-use-local-storage-with-javascript-9598834c8b72?source=email-8a117e11ecc2-1599381941469-digest.reader------0-59------------------970183b0_86a9_458b_b4d6_bc20738d8e5a-1-a1700661_881d_4c3d_ad2d_643954636fb7----">here</a>.</li>
+</ul>
+
+<h4 id="why-do-i-need-to-do-this">Why do I need to do this?</h4>
+<p>One of my clients has a complex angular web app
+Recently, one of my clients wanted to do more with their user’s UTM parameters beyond just merely recording these analytics to google.</p>
+
+<h2 id="launch-an-ec2-instance">Launch An EC2 Instance</h2>
+
+<h2 id="congratulations-">Congratulations! 🎉</h2>
+:ET

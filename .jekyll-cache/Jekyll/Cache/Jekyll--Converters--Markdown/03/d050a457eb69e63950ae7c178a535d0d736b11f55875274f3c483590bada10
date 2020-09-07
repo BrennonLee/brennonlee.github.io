@@ -1,0 +1,16 @@
+I"�<p>This post is for those who want to track their user’s UTM parameters on their web app and save them in local storage for later use.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Understand what <a href="https://www.autopilothq.com/blog/what-are-utm-parameters/">UTM parameters</a> are.</li>
+  <li>Knowledge of local storage (and why we will use this instead of session storage). Recommended article <a href="https://medium.com/better-programming/how-to-use-local-storage-with-javascript-9598834c8b72">here</a>.</li>
+</ul>
+
+<h2 id="why-do-i-need-to-do-this">Why do I need to do this?</h2>
+<p>One of my clients has a complex angular web app where users follow a specific step through purchase flow. Once a purchase is made, a series of waterfall events are triggered on the backend. Some of those include firing off analytic events and saving user specific preferences to their “profile” on an email service provider to help campaigns become more personalized.
+Recently, we came across the need to do more than just track UTM params to google analytics. We wanted to save the UTM params to a specific user and when they completed a purchase, we would save these UTM params to the user’s order as well as to their profiles across the board. The catch is that a user can always add items to their cart, leave the site, and then come back another day to complete their purchase. In this case, we wanted to be sure that their original UTM params would still be associated with that order. Another edge case we wanted to catch was if a user came to the site via multiple different UTM params with the same key</p>
+
+<h2 id="l">L</h2>
+
+<h2 id="congratulations-">Congratulations! 🎉</h2>
+:ET

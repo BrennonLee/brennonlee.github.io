@@ -1,0 +1,235 @@
+I"�g<p>This post is for those who want to track their user’s UTM parameters on their web app and save them in local storage for later use.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Understand what <a href="https://www.autopilothq.com/blog/what-are-utm-parameters/">UTM parameters</a> are.</li>
+  <li>Knowledge of local storage (and why we will use it instead of session storage). Recommended article <a href="https://medium.com/better-programming/how-to-use-local-storage-with-javascript-9598834c8b72">here</a>.</li>
+</ul>
+
+<h2 id="why-do-i-need-to-do-this">Why do I need to do this?</h2>
+<p>Recently, I came across the need to do more than just track UTM params to google analytics. I wanted to save the UTM params to a specific user and when they completed a purchase on the web app, I would save these UTM params to the user’s order as well as to their profiles across the board. The catch is that a user can always add items to their cart, leave the site, and then come back another day to complete their purchase. In this case, I wanted to be sure that their original UTM params would still be associated with that order.
+Another edge case I wanted to catch was if a user came to the site via multiple different UTM params parameters, I wanted to save each one in the order they visited to capture all routes taken.</p>
+
+<h2 id="the-solution">The Solution</h2>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">LOCAL_STORAGE</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">localStorage</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">DEFAULT_COOKIE_TTL</span> <span class="o">=</span> <span class="mi">10368000000</span><span class="p">;</span>   <span class="c1">// 120 days in ms</span>
+<span class="c1">// The UTM parameters you want to track</span>
+<span class="kd">const</span> <span class="nx">UTM_CAMPAIGN</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">utm_campaign</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">UTM_MEDIUM</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">utm_medium</span><span class="dl">'</span><span class="p">;</span>
+<span class="kd">const</span> <span class="nx">UTM_SOURCE</span> <span class="o">=</span> <span class="dl">'</span><span class="s1">utm_source</span><span class="dl">'</span><span class="p">;</span>
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">UTM_PARAMS</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="nx">UTM_CAMPAIGN</span><span class="p">,</span>
+  <span class="nx">UTM_MEDIUM</span><span class="p">,</span>
+  <span class="nx">UTM_SOURCE</span>
+<span class="p">];</span>
+
+<span class="k">export</span> <span class="kd">class</span> <span class="nx">UtmTrackingService</span> <span class="p">{</span>
+  <span class="cm">/**
+   * Private helper function to handle
+   * setting the new UTM parameter's value
+   * @param {String} utmParam
+   * @param {String} utmValue
+   */</span>
+  <span class="kr">private</span> <span class="nx">setNewUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+      <span class="kd">const</span> <span class="nx">utmCookie</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">value</span><span class="p">:</span> <span class="p">[</span><span class="nx">utmValue</span><span class="p">],</span>
+        <span class="na">expiry</span><span class="p">:</span> <span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">+</span> <span class="nx">DEFAULT_COOKIE_TTL</span>
+      <span class="p">};</span>
+      <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span>
+        <span class="nx">utmParam</span><span class="p">,</span>
+        <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">utmCookie</span><span class="p">)</span>
+      <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Private helper function to handle appending
+   * a UTM value to an existing UTM parameter's cookie
+   * @param {String} utmParam
+   * @param {String} utmValue
+   * @param {Object} utmCookie
+   */</span>
+  <span class="kr">private</span> <span class="nx">setExistingUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">,</span> <span class="nx">utmCookie</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">utmValue</span> <span class="o">&amp;&amp;</span> <span class="nx">utmCookie</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">utmCookie</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">utmValue</span><span class="p">))</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+        <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">utmValue</span><span class="p">);</span>
+        <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">expiry</span> <span class="o">=</span> <span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">+</span> <span class="nx">DEFAULT_COOKIE_TTL</span><span class="p">;</span>
+        <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span>
+          <span class="nx">utmParam</span><span class="p">,</span>
+          <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">utmCookie</span><span class="p">)</span>
+        <span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Entry function to handle how
+   * to store the UTM parameter found in the URL
+   * @param utmParam
+   * @param utmValue
+   */</span>
+  <span class="kr">private</span> <span class="nx">storeUTMParam</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">rawUTMCookie</span> <span class="o">=</span> <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">);</span>
+      <span class="c1">// If no cookie exists, create a new one with expiration for 120 days</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">rawUTMCookie</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">setNewUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">utmCookie</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">rawUTMCookie</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+        <span class="c1">// If cookie has expired, remove it and set a new one with default expiration</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">expiry</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">removeItem</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">);</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">setNewUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="c1">// Cookie has not expire and exists, so append the new utm value</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">setExistingUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">,</span> <span class="nx">utmCookie</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Search the array of parameters for the specified UTM parameter
+   * @param {String} utmParam
+   * @param {Array} urlParams
+   */</span>
+  <span class="kr">private</span> <span class="nx">getUTMParamFromURL</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">urlParams</span> <span class="o">=</span> <span class="p">[])</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">urlParams</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">param</span> <span class="o">=</span> <span class="nx">urlParams</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+        <span class="kd">const</span> <span class="nx">keyValue</span> <span class="o">=</span> <span class="nx">param</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1">=</span><span class="dl">'</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">keyValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">keyValue</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">decodeURIComponent</span><span class="p">(</span><span class="nx">keyValue</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Trigger to check the current URL for the UTM params
+   */</span>
+  <span class="kr">public</span> <span class="nx">checkForUTMParams</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">URLParams</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1">&amp;</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">UTM_PARAMS</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">utmParam</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">utmValue</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUTMParamFromURL</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">URLParams</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">storeUTMParam</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * If the given parameter is valid, attempt to
+   * retrieve the UTM value from local storage
+   * (If the cookie has expired, delete it and return null)
+   * @param {String} param
+   */</span>
+  <span class="kr">public</span> <span class="nx">getUTMParamFromCookie</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">param</span> <span class="o">&amp;&amp;</span> <span class="nx">UTM_PARAMS</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">param</span><span class="p">))</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">rawUTMCookie</span> <span class="o">=</span> <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">param</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">rawUTMCookie</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="kd">const</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+        <span class="kd">const</span> <span class="nx">utmCookie</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">rawUTMCookie</span><span class="p">);</span>
+        <span class="c1">// If the cookie is expired, delete it and return null</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">expiry</span><span class="p">)</span> <span class="p">{</span>
+          <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">removeItem</span><span class="p">(</span><span class="nx">param</span><span class="p">);</span>
+          <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s step through how each function above connects to each other.</p>
+
+<h3 id="checkforutmparams">checkForUTMParams</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Trigger to check the current URL for the UTM params
+ */</span>
+<span class="kr">public</span> <span class="nx">checkForUTMParams</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">URLParams</span> <span class="o">=</span> <span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">search</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1">&amp;</span><span class="dl">'</span><span class="p">);</span>
+  <span class="nx">UTM_PARAMS</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">utmParam</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">utmValue</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getUTMParamFromURL</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">URLParams</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">storeUTMParam</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The entry point is the <code class="language-plaintext highlighter-rouge">checkForUTMParams</code>. This is the function you want to put
+ in the root of your application so it’s triggered when the app is initialized.
+ Here we need to grab the current URL before the user can navigate to another page
+ and our search parameters are lost. Then for each of our constant UTM parameters
+ we defined at the top of this file, we want to check for in the existing URL.
+ This is done via the <code class="language-plaintext highlighter-rouge">getUTMParamFromURL</code> function inside our loop.</p>
+
+<h3 id="getutmparamfromurl">getUTMParamFromURL</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Search the array of parameters for the specified UTM parameter
+ * @param {String} utmParam
+ * @param {Array} urlParams
+ */</span>
+<span class="kr">private</span> <span class="nx">getUTMParamFromURL</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">urlParams</span> <span class="o">=</span> <span class="p">[])</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">urlParams</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">param</span> <span class="o">=</span> <span class="nx">urlParams</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+      <span class="kd">const</span> <span class="nx">keyValue</span> <span class="o">=</span> <span class="nx">param</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="dl">'</span><span class="s1">=</span><span class="dl">'</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">keyValue</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">===</span> <span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">keyValue</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">decodeURIComponent</span><span class="p">(</span><span class="nx">keyValue</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>For each given UTM parameter and the array of URL parameters, we split up the
+query parameter and try to match on our UTM. IF we find a match, we decode
+and return that value to our entry function above. If the <code class="language-plaintext highlighter-rouge">utmValue</code> is a truthy
+value, we will then store this value so use later!</p>
+
+<h3 id="storeutmparam">storeUTMParam</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Entry function to handle how
+ * to store the UTM parameter found in the URL
+ * @param utmParam
+ * @param utmValue
+ */</span>
+<span class="kr">private</span> <span class="nx">storeUTMParam</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">utmParam</span> <span class="o">&amp;&amp;</span> <span class="nx">utmValue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">rawUTMCookie</span> <span class="o">=</span> <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">);</span>
+    <span class="c1">// If no cookie exists, create a new one with expiration for 120 days</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">rawUTMCookie</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">setNewUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="kd">const</span> <span class="nx">utmCookie</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">rawUTMCookie</span><span class="p">);</span>
+      <span class="kd">const</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+      <span class="c1">// If cookie has expired, remove it and set a new one with default expiration</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">now</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">utmCookie</span><span class="p">.</span><span class="nx">expiry</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">LOCAL_STORAGE</span><span class="p">.</span><span class="nx">removeItem</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">);</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">setNewUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Cookie has not expire and exists, so append the new utm value</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">setExistingUTMCookie</span><span class="p">(</span><span class="nx">utmParam</span><span class="p">,</span> <span class="nx">utmValue</span><span class="p">,</span> <span class="nx">utmCookie</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="congratulations-">Congratulations! 🎉</h2>
+:ET

@@ -1,0 +1,16 @@
+I"N<p>This post is for those who want to track their user’s UTM parameters on their web app and save them in local storage for later use.</p>
+
+<h4 id="prerequisites">Prerequisites</h4>
+<ul>
+  <li>Understand what <a href="https://www.autopilothq.com/blog/what-are-utm-parameters/">UTM parameters</a> are.</li>
+  <li>Knowledge of local storage (and why we will use this instead of session storage). Recommended article <a href="https://medium.com/better-programming/how-to-use-local-storage-with-javascript-9598834c8b72">here</a>.</li>
+</ul>
+
+<h3 id="why-do-i-need-to-do-this">Why do I need to do this?</h3>
+<p>One of my clients has a complex angular web app where users follow a specific step through purchase flow. Once a purchase is made, a series of waterfall events are triggered on the backend. Some of those include firing off analytic events and saving user specific preferences to their “profile” on an email service provider to help campaigns become more personalized.
+Recently, we came across the need to do more</p>
+
+<h2 id="l">L</h2>
+
+<h2 id="congratulations-">Congratulations! 🎉</h2>
+:ET
