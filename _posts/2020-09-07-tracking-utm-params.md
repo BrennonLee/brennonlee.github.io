@@ -305,7 +305,7 @@ private setExistingUTMCookie(utmParam, utmValue, utmCookie) {
 ```
 Given that a UTM parameter is already in local storage, we first check to see
 if the given string value exists in our value array (since we only want to
-append new sources). If it doesn't, we simply push the string onto our Array
+append new sources). If it doesn't, we simply push the string onto our array
 and then update our expiration time.
 
 
